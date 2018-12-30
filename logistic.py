@@ -1,5 +1,4 @@
 import numpy as np
-import math
 
 def loadFile():
 	dataList=[]
@@ -23,13 +22,14 @@ def gradAscent(dataList, labelList):
 	maxCycles=500
 	weights=np.ones((n,1))
 	for k in range(maxCycles):
-		
 		h=sigmoid(dataMatrix*weights)
-		print(type(h))
-
+		error=(labelMatrix-h)
+		weights=weights+alpha*dataMatrix.transpose()*error
+	return weights
 
 def main():
 	dataList, labelList=loadFile();
-	gradAscent(dataList, labelList)
+	weights=gradAscent(dataList, labelList)
+	print(weights)
 
 main()
