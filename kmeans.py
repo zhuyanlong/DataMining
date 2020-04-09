@@ -1,5 +1,6 @@
 #当函数模块化以后，确实写起来会更方便些
 #以zoo数据集为例
+#2020.4.9还是没能成功，猜想问题出在距离函数上，maybe不应该使用这个距离函数？
 import random
 import numpy as np
 import pandas as pd
@@ -18,12 +19,16 @@ def kmeans(dataSet,k):
     centroids=[]
     oldCentroids=centroids.copy()
     iterations=0
+    #随机选k个初始簇心
     for i in range(k):
         centroids.append(dataSet[index[i]])
+    # print(centroids)
     while not shouldStop(oldCentroids,centroids,iterations):
         oldCentroids=centroids.copy()
         iterations+=1
+        #重新分簇
         labels=getLabels(dataSet,centroids)
+
         centroids=getCentroids(labels,k,centroids)
     return centroids
 
@@ -48,27 +53,35 @@ def getCentroids(labels,k,centroids):
     m=len(labels)
     for i in range(k):
         tmp=np.zeros(len(centroids[0]))
-        count=0
+        count=1
         for j in range(m):
             #这里因为使用的是array，所以判断相等的方法也是不一样的
-            if (labels[j][0]==centroids[i]).all():
+            if (labels[j][2]==i):
                 tmp+=labels[j][1]
                 count+=1
         tmp/=count
+        # print(count)
         newcentroids.append(tmp)
-    print(newcentroids)
+    # print(centroids)
+    # print()
+    # print(newcentroids)
     return newcentroids
 
 #我觉得这个函数我只需要得到两个，一个是数据编号，另一个是簇
+#我想这个地方能不能做个改进，就是不要簇心标记簇，而是用符号标记
 def getLabels(dataSet,centroids):
     labels=[]
     m=len(dataSet)
     for i in range(m):
         tmp=[]
+        k=0
         for centroid in centroids:
-            tmp.append((centroid,dataSet[i],distance(dataSet[i],centroid)))
+            tmp.append((centroid,dataSet[i],k,distance(dataSet[i],centroid)))
         result=sorted(tmp,key=lambda t:t[-1])
-        labels.append(result[0][0:2])
+        labels.append(result[0][0:3])
+        print(labels[i][2])
+    # print(labels[0])
+    # print()
     return labels
 
 #距离函数是根据数据的类型特制的
@@ -111,6 +124,6 @@ def main():
     data=loadData('data\\zoo.csv')
     data.drop(columns=['type'])
     k=3
-    print(kmeans(data,k))
+    kmeans(data,k)
 
 main()
